@@ -8,18 +8,13 @@ namespace FocalPointer
     {
         void LogMessage(string message, PluginBase.LogLevel level = PluginBase.LogLevel.Info);
         void ReportError(string message, PluginBase.ErrorSeverity severity = PluginBase.ErrorSeverity.Major);
-        void SetIntervalName(string name);
-        void SetTaskName(string name);
-        void StartInterval();
-        void PauseInterval();
-        void EndInterval();
-        void StartBreak();
-        void PauseBreak();
-        void EndBreak();
-        void PersistSetting(string key, string value);
-        void PersistData(string blob);
-        void PersistData(byte[] blob);
-        void PersistDataSecurely(string blob);
-        void PersistDataSecurely(byte[] blob);
+        void RequestSetIntervalName(string name);
+        void RequestSetTaskName(string name);
+        void RequestStartInterval(PluginBase.IntervalType type);
+        void RequestPauseInterval(string id);
+        void RequestEndInterval(string id);
+        void StoreSetting(string key, string value);
+        void StoreBlob(string key, string blob, bool secure);
+        string RetrieveBlob(string key);
     }
 }

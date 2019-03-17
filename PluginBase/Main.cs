@@ -6,6 +6,12 @@ namespace FocalPointer
 {
     public abstract class PluginBase
     {
+        public enum IntervalType
+        {
+            Focus,
+            Rest
+        }
+
         public enum StateChangeType
         {
             Start,
@@ -30,16 +36,17 @@ namespace FocalPointer
         }
 
         // This functionality *must* be implemented.
-        public abstract void OnInitialize(ICoreApi api, IReadOnlyDictionary<string, string> settings);
+        public abstract IRegistration GetRegistration();
+        public abstract bool OnInitialize(ICoreApi api, string lastVersion, IReadOnlyDictionary<string, string> settings);
 
         // The rest of these can be left alone
-        public void OnPopulateTasks() { }
-        public void OnTaskSelected(string taskName) { }
-        public void OnIntervalCreated(string id, string intervalName, string taskName) { }
-        public void OnIntervalStateChange(string id, StateChangeType change, DateTime timestamp, TimeSpan elapsed) { }
-        public void OnBreakStateChange(string id, StateChangeType change, DateTime timestamp, TimeSpan elapsed) { }
-        public void OnClockTick(string id, StateChangeType lastStateChange, DateTime timestamp, TimeSpan elapsed) { }
-        public void OnSettingsEdited(IReadOnlyDictionary<string, string> settings) { }
-        public void OnSettingsAccepted(IReadOnlyDictionary<string, string> settings) { }
+        public virtual string[] OnPopulateTasks(string mostRecent) { return null; }
+        public virtual void OnTaskSelected(string taskName) { }
+        public virtual void OnIntervalCreated(string id, IntervalType mode, string intervalName = null, string taskName = null) { }
+        public virtual void OnIntervalStateChange(string id, StateChangeType change, DateTime timestamp, TimeSpan elapsed) { }
+        public virtual void OnClockTick(string id, StateChangeType lastStateChange, DateTime timestamp, TimeSpan elapsed) { }
+
+        public virtual string OnSettingEdited(string key, string value, IReadOnlyDictionary<string, string> context) { return null; }
+        public virtual void OnSettingsAccepted(IReadOnlyDictionary<string, string> settings) { }
     }
 }

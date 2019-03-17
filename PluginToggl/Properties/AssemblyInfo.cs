@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PluginBase.Properties")]
+[assembly: AssemblyTitle("Toggl Integration for FocusPointer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PluginBase.Properties")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyCompany("Siobhan Beeman")]
+[assembly: AssemblyProduct("PluginToggl")]
+[assembly: AssemblyCopyright("© 2019 Siobhan Beeman. All Rights Reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -29,5 +29,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.19069.1144")]
-[assembly: AssemblyFileVersion("1.0.19069.1144")]
+[assembly: AssemblyVersion("1.0.19075.1734")]
+[assembly: AssemblyFileVersion("1.0.19075.1734")]

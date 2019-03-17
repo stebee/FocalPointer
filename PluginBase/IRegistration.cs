@@ -6,9 +6,8 @@ namespace FocalPointer
 {
     public interface IRegistration
     {
-        string GetName();
+        string GetTitle();
         string GetVersion();
-        object GetSetting(string key);
         ISettingSchema[] GetSchema();
     }
 }

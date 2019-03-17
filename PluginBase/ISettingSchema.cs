@@ -7,12 +7,17 @@ namespace FocalPointer
     public enum SettingType
     {
         Hidden,
-        String,
+        Text,
         Password,
-        BigString,
+        BigText,
         Boolean,
         RadioGroup,
-        RadioEntry
+        RadioEntry,
+        Label,
+        BigLabel,
+        Message,
+        BigMessage,
+        Separator
     };
 
     public interface ISettingSchema
