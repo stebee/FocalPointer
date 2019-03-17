@@ -14,24 +14,18 @@ namespace FocalPointer
         private IntervalManager _clock;
         private SettingsManager _settings;
 
-        private static readonly IReadOnlyDictionary<string, string> _emptySettings;
-        static PluginManager()
-        {
-            _emptySettings = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
-        }
-
         #region Plugin store
         private List<Plugin> _plugins;
         private Dictionary<string, int> _pluginIndex;
 
-        public class Plugin : PluginBase
+        public class Plugin : IPlugin
         {
             public string Id { get; private set; }
             public string Source { get; private set; }
             public string Title { get; private set; }
             public string Version { get; private set; }
             public ISettingSchema[] Schema { get; private set; }
-            private PluginBase Instance;
+            private IPlugin Instance;
 
             private class CoreShim : ICoreApi
             {
@@ -116,7 +110,7 @@ namespace FocalPointer
             {
             }
 
-            public static Plugin Register(PluginManager container, PluginBase instance, string source)
+            public static Plugin Register(PluginManager container, IPlugin instance, string source)
             {
                 if (instance == null)
                     return null;
@@ -136,7 +130,7 @@ namespace FocalPointer
                 var settings = container._settings.GetSettings(entry);
                 var lastVersion = container._settings.LastVersion(entry);
                 if (settings == null)
-                    settings = _emptySettings;
+                    settings = SettingsManager.EmptySettings;
 
                 bool okay = instance.OnInitialize(
                     new CoreShim(entry, container._clock, container._settings),
@@ -151,7 +145,7 @@ namespace FocalPointer
                 return entry;
             }
 
-            public override string[] OnPopulateTasks(string mostRecent)
+            public string[] OnPopulateTasks(string mostRecent)
             {
                 if (DoesExist)
                     return Instance.OnPopulateTasks(mostRecent);
@@ -159,31 +153,37 @@ namespace FocalPointer
                     return null;
             }
 
-            public override void OnTaskSelected(string taskName)
+            public void OnTasksPopulated(string mostRecent, string[] list)
+            {
+                if (DoesExist)
+                    Instance.OnTasksPopulated(mostRecent, list);
+            }
+
+            public void OnTaskSelected(string taskName)
             {
                 if (DoesExist)
                     Instance.OnTaskSelected(taskName);
             }
 
-            public override void OnIntervalCreated(string id, IntervalType mode, string intervalName = null, string taskName = null)
+            public void OnIntervalCreated(string id, IntervalType mode, string intervalName = null, string taskName = null)
             {
                 if (DoesExist)
                     Instance.OnIntervalCreated(id, mode, intervalName, taskName);
             }
 
-            public override void OnIntervalStateChange(string id, StateChangeType change, DateTime timestamp, TimeSpan elapsed)
+            public void OnIntervalStateChange(string id, StateChangeType change, DateTime timestamp, TimeSpan elapsed)
             {
                 if (DoesExist)
                     Instance.OnIntervalStateChange(id, change, timestamp, elapsed);
             }
 
-            public override void OnClockTick(string id, StateChangeType lastStateChange, DateTime timestamp, TimeSpan elapsed)
+            public void OnClockTick(string id, StateChangeType lastStateChange, DateTime timestamp, TimeSpan elapsed)
             {
                 if (DoesExist)
                     Instance.OnClockTick(id, lastStateChange, timestamp, elapsed);
             }
 
-            public override string OnSettingEdited(string key, string value, IReadOnlyDictionary<string, string> context)
+            public string OnSettingEdited(string key, string value, IReadOnlyDictionary<string, string> context)
             {
                 if (DoesExist)
                     return Instance.OnSettingEdited(key, value, context);
@@ -191,20 +191,20 @@ namespace FocalPointer
                     return null;
             }
 
-            public override void OnSettingsAccepted(IReadOnlyDictionary<string, string> settings)
+            public void OnSettingsAccepted(IReadOnlyDictionary<string, string> settings)
             {
                 if (DoesExist)
                     Instance.OnSettingsAccepted(settings);
             }
 
             #region Unused overrides
-            public override IRegistration GetRegistration()
+            public IRegistration GetRegistration()
             {
                 // This won't actually be called
                 return null;
             }
 
-            public override bool OnInitialize(ICoreApi api, string lastVersion, IReadOnlyDictionary<string, string> settings)
+            public bool OnInitialize(ICoreApi api, string lastVersion, IReadOnlyDictionary<string, string> settings)
             {
                 // This won't actually be called
                 return false;
@@ -231,7 +231,7 @@ namespace FocalPointer
             _pluginIndex = new Dictionary<string, int>();
         }
 
-        private void findPlugins()
+        private void findAndRegisterPlugins()
         {
             var files = Directory.GetFiles(Path.Combine(Application.StartupPath, "Plugins"), "*.dll", SearchOption.TopDirectoryOnly);
             foreach (string file in files)
@@ -252,44 +252,30 @@ namespace FocalPointer
                     if (constructor == null)
                         continue;
 
-                    var baseType = type.BaseType;
-                    while (baseType != null)
-                    {
-                        if (baseType == typeof(PluginBase))
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            baseType = baseType.BaseType;
-                        }
-                    }
-
-                    if (baseType != null)
+                    if (type.GetInterface("IPlugin") != null)
                     {
                         var instance = Activator.CreateInstance(type);
                         if (instance != null)
                         {
-                            Plugin.Register(this, instance as PluginBase, dll.FullName);
+                            Plugin.Register(this, instance as IPlugin, dll.GetName().Name);
                         }
                     }
                 }
             }
-
         }
 
-        public bool Initialize(IntervalManager core, params PluginBase[] builtins)
+        public bool Initialize(IntervalManager core, params IPlugin[] builtins)
         {
             _clock = core;
             _settings = core.Settings;
             _plugins = new List<Plugin>();
 
-            foreach (PluginBase builtin in builtins)
+            foreach (IPlugin builtin in builtins)
             {
                 Plugin.Register(this, builtin, $"internal");
             }
 
-            findPlugins();
+            findAndRegisterPlugins();
 
             return true;
         }
@@ -298,21 +284,12 @@ namespace FocalPointer
         {
             List<string> list = new List<string>();
 
-            foreach (PluginBase plugin in _plugins)
+            foreach (IPlugin plugin in _plugins)
             {
                 string[] add = plugin.OnPopulateTasks(mostRecent);
                 if (add != null)
-                {
-                    foreach (string entry in add)
-                    {
-                        if (entry != mostRecent)
-                            list.Add(entry);
-                    }
-                }
+                    list.AddRange(add);
             }
-
-            list.Sort();
-            list.Insert(0, mostRecent);
 
             return list.ToArray();
         }

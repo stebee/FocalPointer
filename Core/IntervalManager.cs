@@ -8,9 +8,9 @@ namespace FocalPointer
 {
     class IntervalManager
     {
-        public IntervalManager()
+        public IntervalManager(SettingsManager settings)
         {
-            Settings = new SettingsManager();
+            Settings = settings;
         }
 
         public SettingsManager Settings { get; private set; }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FocalPointer
 {
-    public abstract class PluginBase
+    public abstract class PluginBase : IPlugin
     {
         public enum IntervalType
         {
@@ -17,7 +17,8 @@ namespace FocalPointer
             Start,
             Pause,
             Unpause,
-            End
+            End,
+            TextUpdate
         }
 
         public enum LogLevel
@@ -41,6 +42,7 @@ namespace FocalPointer
 
         // The rest of these can be left alone
         public virtual string[] OnPopulateTasks(string mostRecent) { return null; }
+        public virtual void OnTasksPopulated(string mostRecent, string[] list) { }
         public virtual void OnTaskSelected(string taskName) { }
         public virtual void OnIntervalCreated(string id, IntervalType mode, string intervalName = null, string taskName = null) { }
         public virtual void OnIntervalStateChange(string id, StateChangeType change, DateTime timestamp, TimeSpan elapsed) { }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 using SiobhanDev;
 
@@ -20,7 +21,9 @@ namespace FocalPointer
 
         PluginManager _plugins;
         IntervalManager _clock;
+        SettingsManager _settings;
         TrayIconWnd _tray;
+        ManageIntervalWnd _controls;
 
         public SplashWnd()
         {
@@ -38,14 +41,29 @@ namespace FocalPointer
             _versionLabel.Text = AssemblyAttributes.Version;
             _copyrightLabel.Text = AssemblyAttributes.Copyright;
 
-            _tray = new TrayIconWnd(_trayIcon);
-            _clock = new IntervalManager();
+            _controls = new ManageIntervalWnd();
+
+            _tray = new TrayIconWnd(_trayIcon, _controls);
+            _settings = new SettingsManager();
+
+            _settings.InitializeFromSqlitePath(getStoragePath(), "debug.private");
+            _clock = new IntervalManager(_settings);
 
             _plugins = new PluginManager();
-            if (!_plugins.Initialize(_clock, _tray))
+            if (!_plugins.Initialize(_clock, _tray, _controls))
                 Application.Exit();
             else
                 _initializationComplete = true; 
+        }
+
+        private string getStoragePath()
+        {
+            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FocalPointer");
+
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            return Path.Combine(dir, "storage.sqlite3");
         }
 
         private void showSelf(bool show)

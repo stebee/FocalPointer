@@ -14,6 +14,7 @@ namespace FocalPointer
 {
     class TrayIconWnd : PluginBase
     {
+        private ManageIntervalWnd _controls;
         private NotifyIcon _icon;
         private MenuItem _stateMenuItem;
         private IntervalType _currentIntervalType;
@@ -23,9 +24,10 @@ namespace FocalPointer
 
         private ICoreApi _api;
 
-        public TrayIconWnd(NotifyIcon icon)
+        public TrayIconWnd(NotifyIcon icon, ManageIntervalWnd controls)
         {
             _icon = icon;
+            _controls = controls;
 
             _stateMenuItem = new MenuItem("[error]", new EventHandler(handleStateMenu));
             MenuItem configMenuItem = new MenuItem("Configuration", new EventHandler(handleConfigMenu));
@@ -41,11 +43,16 @@ namespace FocalPointer
                 exitMenuItem
             });
 
-            _icon.BalloonTipClicked += icon_OnLeftClick;
-            _icon.MouseClick += icon_OnLeftClick;
-            _icon.BalloonTipClosed += icon_OnLeftClick;
+            _icon.BalloonTipClicked += icon_OnNormalClick;
+            _icon.MouseDown += icon_OnMouseDown;
 
             RefreshForState(null);
+        }
+
+        private void icon_OnMouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+                this.icon_OnNormalClick(sender, e);
         }
 
         public void Show(bool show)
@@ -62,8 +69,9 @@ namespace FocalPointer
             }
         }
 
-        private void icon_OnLeftClick(object sender, EventArgs e)
+        private void icon_OnNormalClick(object sender, EventArgs e)
         {
+            _controls.Show(true);
         }
 
         private void handleConfigMenu(object sender, EventArgs e)
