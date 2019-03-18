@@ -17,8 +17,7 @@ namespace FocalPointer
             Start,
             Pause,
             Unpause,
-            End,
-            TextUpdate
+            End
         }
 
         public enum LogLevel
@@ -44,7 +43,7 @@ namespace FocalPointer
         public virtual string[] OnPopulateTasks(string mostRecent) { return null; }
         public virtual void OnTasksPopulated(string mostRecent, string[] list) { }
         public virtual void OnTaskSelected(string taskName) { }
-        public virtual void OnIntervalCreated(string id, IntervalType mode, string intervalName = null, string taskName = null) { }
+        public virtual void OnIntervalPropertyChange(string id, IntervalType mode, string intervalName = null, string taskName = null) { }
         public virtual void OnIntervalStateChange(string id, StateChangeType change, DateTime timestamp, TimeSpan elapsed) { }
         public virtual void OnClockTick(string id, StateChangeType lastStateChange, DateTime timestamp, TimeSpan elapsed) { }
 

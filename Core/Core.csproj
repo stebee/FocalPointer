@@ -95,6 +95,8 @@
     <Compile Include="..\common\ExtensionMethods.cs">
       <Link>ExtensionMethods.cs</Link>
     </Compile>
+    <Compile Include="IconBank.cs" />
+    <Compile Include="Interval.cs" />
     <Compile Include="IntervalManager.cs" />
     <Compile Include="ManageIntervalWnd.cs">
       <SubType>Form</SubType>

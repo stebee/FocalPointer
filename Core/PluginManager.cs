@@ -49,24 +49,24 @@ namespace FocalPointer
                     _api.ReportError(_instance, message, severity);
                 }
 
-                public void RequestEndInterval(string id)
+                public void RequestPopulateTasks()
                 {
-                    _api.RequestEndInterval(_instance, id);
+                    _api.RequestPopulateTasks();
                 }
 
-                public void RequestPauseInterval(string id)
+                public void RequestModifyIntervalState(string id, PluginBase.StateChangeType state)
                 {
-                    _api.RequestPauseInterval(_instance, id);
+                    _api.RequestModifyIntervalState(_instance, id, state);
                 }
 
-                public void RequestSetIntervalName(string name)
+                public void RequestSetIntervalName(string name, string id = null)
                 {
-                    _api.RequestSetIntervalName(_instance, name);
+                    _api.RequestSetIntervalName(_instance, name, id);
                 }
 
-                public void RequestSetTaskName(string name)
+                public void RequestSetTaskName(string name, string id = null)
                 {
-                    _api.RequestSetTaskName(_instance, name);
+                    _api.RequestSetTaskName(_instance, name, id);
                 }
 
                 public void RequestStartInterval(IntervalType type)
@@ -165,10 +165,10 @@ namespace FocalPointer
                     Instance.OnTaskSelected(taskName);
             }
 
-            public void OnIntervalCreated(string id, IntervalType mode, string intervalName = null, string taskName = null)
+            public void OnIntervalPropertyChange(string id, IntervalType mode, string intervalName = null, string taskName = null)
             {
                 if (DoesExist)
-                    Instance.OnIntervalCreated(id, mode, intervalName, taskName);
+                    Instance.OnIntervalPropertyChange(id, mode, intervalName, taskName);
             }
 
             public void OnIntervalStateChange(string id, StateChangeType change, DateTime timestamp, TimeSpan elapsed)
@@ -277,6 +277,8 @@ namespace FocalPointer
 
             findAndRegisterPlugins();
 
+            _clock.Subscribe(this);
+
             return true;
         }
 
@@ -299,9 +301,9 @@ namespace FocalPointer
             _plugins.ForEach(plugin => plugin.OnTaskSelected(taskName));
         }
 
-        public override void OnIntervalCreated(string id, IntervalType mode, string intervalName = null, string taskName = null)
+        public override void OnIntervalPropertyChange(string id, IntervalType mode, string intervalName = null, string taskName = null)
         {
-            _plugins.ForEach(plugin => plugin.OnIntervalCreated(id, mode, intervalName, taskName));
+            _plugins.ForEach(plugin => plugin.OnIntervalPropertyChange(id, mode, intervalName, taskName));
         }
 
         public override void OnIntervalStateChange(string id, StateChangeType change, DateTime timestamp, TimeSpan elapsed)

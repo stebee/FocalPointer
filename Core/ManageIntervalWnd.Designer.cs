@@ -45,6 +45,7 @@
             this._stateIcon.Size = new System.Drawing.Size(128, 128);
             this._stateIcon.TabIndex = 0;
             this._stateIcon.TabStop = false;
+            this._stateIcon.Click += new System.EventHandler(this.stateIcon_Click);
             // 
             // _taskCombo
             // 
@@ -71,6 +72,7 @@
             this._leftButton.Size = new System.Drawing.Size(128, 128);
             this._leftButton.TabIndex = 2;
             this._leftButton.UseVisualStyleBackColor = true;
+            this._leftButton.Click += new System.EventHandler(this.leftButton_Click);
             // 
             // _rightButton
             // 
@@ -80,6 +82,7 @@
             this._rightButton.Size = new System.Drawing.Size(128, 128);
             this._rightButton.TabIndex = 3;
             this._rightButton.UseVisualStyleBackColor = true;
+            this._rightButton.Click += new System.EventHandler(this.rightButton_Click);
             // 
             // ManageIntervalWnd
             // 
